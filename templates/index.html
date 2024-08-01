@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block main %}
+<div class="container my-5">
+    <form id="conversionForm" action="/" method="post">
+        <div class="mb-3">
+            <label for="amount" class="form-label">Amount:</label>
+            <input type="number" class="form-control" id="amount" name="amount" required autofocus autocomplete="off">
+        </div>
+        <div class="mb-3">
+            <label for="fromCurrency" class="form-label">From:</label>
+            <select class="form-select" id="fromCurrency" name="fromCurrency" required onchange="updateToCurrencyOptions()">
+                <!-- Options for From Currency -->
+                {% for currency in currencies %}
+                    <option value="{{ currency.code }}" {% if currency.code == default_from_currency %}selected{% endif %}>
+                        {{ currency.name }} - {{ currency.code }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="toCurrency" class="form-label">To:</label>
+            <select class="form-select" id="toCurrency" name="toCurrency" required onchange="updateToCurrencyOptions()">
+                <!-- Options for To Currency -->
+                {% for currency in currencies %}
+                    <option value="{{ currency.code }}" {% if currency.code == default_to_currency %}selected{% endif %}>
+                        {{ currency.name }} - {{ currency.code }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Convert</button>
+    </form>
+    {% if exchange_value %}
+        <div class="text-center" style="padding-top: 10px;">{{ exchange_value }}</div>
+    {% endif %}
+</div>
+<script>
+    function updateToCurrencyOptions() {
+        var fromCurrency = document.getElementById('fromCurrency').value;
+        var toCurrencySelect = document.getElementById('toCurrency');
+        var options = toCurrencySelect.options;
+        for (var i = 0; i < options.length; i++) {
+            options[i].disabled = false; // Enable all options
+            if (options[i].value === fromCurrency) {
+                options[i].disabled = true; // Disable the option that matches the fromCurrency
+                if (toCurrencySelect.value === fromCurrency) {
+                    toCurrencySelect.selectedIndex = 0; // Reset toCurrency if it was the same as fromCurrency
+                }
+            }
+        }
+    }
+    document.getElementById('fromCurrency').addEventListener('change', updateToCurrencyOptions);
+</script>
+{% endblock %}
